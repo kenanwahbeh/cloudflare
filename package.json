@@ -1,0 +1,29 @@
+{
+  "name": "cf-console",
+  "version": "1.0.0",
+  "private": true,
+  "description": "واجهة مبسّطة لإدارة سجلات DNS وأنفاق Cloudflare Tunnel",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "secrets": "wrangler secret put CLOUDFLARE_API_TOKEN && wrangler secret put UI_PASSWORD",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "cloudflare": {
+    "label": "لوحة Cloudflare — DNS والأنفاق",
+    "products": [
+      "Workers"
+    ],
+    "bindings": {
+      "CLOUDFLARE_API_TOKEN": {
+        "description": "توكن Cloudflare API بصلاحيات: Account → Cloudflare Tunnel: Edit، و Zone → DNS: Edit، و Zone → Zone: Read. تعمله من My Profile → API Tokens → Create Token → Custom token."
+      },
+      "UI_PASSWORD": {
+        "description": "كلمة سر الدخول للوحة. خليها قوية — الرابط متاح على الإنترنت. ولّد وحدة عشوائية بـ: openssl rand -base64 24"
+      }
+    }
+  }
+}

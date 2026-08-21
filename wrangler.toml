@@ -1,0 +1,21 @@
+name = "cf-console"
+main = "src/index.js"
+compatibility_date = "2026-08-21"
+
+# الواجهة (HTML/CSS/JS) بتتخزن كـ static assets.
+# run_worker_first = true حتى الـ Worker يتحقق من كلمة السر قبل ما يخدم أي صفحة.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+
+[vars]
+# معرّف الحساب — مو سرّي (بيطلع بروابط لوحة كلاودفلير)
+CLOUDFLARE_ACCOUNT_ID = "50d79fcbc90bf84876653d770bc1c0ec"
+
+[observability]
+enabled = true
+
+# الأسرار بتنحط بـ wrangler secret put (مو هون):
+#   wrangler secret put CLOUDFLARE_API_TOKEN
+#   wrangler secret put UI_PASSWORD

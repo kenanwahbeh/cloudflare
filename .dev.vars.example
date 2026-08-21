@@ -1,0 +1,6 @@
+# انسخ هالملف لـ .dev.vars للتشغيل المحلي (npm run dev).
+# .dev.vars مُتجاهَل بـ .gitignore وما بينرفع للريبو.
+# نفس هالأسماء بيقراها زر «Deploy to Cloudflare» وبيطلبها منك وقت الإعداد.
+
+CLOUDFLARE_API_TOKEN= # توكن API بصلاحيات Tunnel:Edit و DNS:Edit و Zone:Read
+UI_PASSWORD= # كلمة سر الدخول للوحة — ولّدها بـ: openssl rand -base64 24
