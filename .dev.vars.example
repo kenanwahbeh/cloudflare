@@ -1,0 +1,4 @@
+# انسخ هالملف لـ .dev.vars للتشغيل المحلي (wrangler dev).
+# .dev.vars مُتجاهَل بـ .gitignore وما بينرفع للريبو.
+CLOUDFLARE_API_TOKEN=ضع_التوكن_هنا
+UI_PASSWORD=كلمة_سر_قوية_للواجهة

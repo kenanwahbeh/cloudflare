@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>لوحة Cloudflare — DNS والأنفاق</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo"><span class="mark">☁</span><span>لوحة Cloudflare</span></div>
+  <div class="grow"></div>
+  <span class="meta" id="accountMeta"></span>
+  <button class="btn btn-sm btn-ghost" id="logoutBtn">خروج</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-view="dns">سجلات DNS</button>
+  <button class="tab" data-view="tunnels">الأنفاق (Tunnels)</button>
+</nav>
+
+<main>
+
+  <!-- ============================ تبويب الـ DNS ============================ -->
+  <section class="view" id="view-dns">
+    <div class="toolbar">
+      <div class="field">
+        <label for="zoneSelect">النطاق</label>
+        <select id="zoneSelect"></select>
+      </div>
+      <div class="field wide">
+        <label for="searchInput">بحث</label>
+        <input type="text" id="searchInput" placeholder="اسم أو محتوى السجل…">
+      </div>
+      <div class="field">
+        <label for="typeFilter">النوع</label>
+        <select id="typeFilter"><option value="">الكل</option></select>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="addRecordBtn">+ سجل جديد</button>
+      <button class="btn" id="refreshRecordsBtn" title="تحديث">↻</button>
+    </div>
+
+    <!-- نموذج إضافة/تعديل سجل -->
+    <form class="card panel" id="recordForm" hidden>
+      <h3 id="recordFormTitle">سجل جديد</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label for="rType">النوع</label>
+          <select id="rType">
+            <option value="A">A — عنوان IPv4</option>
+            <option value="AAAA">AAAA — عنوان IPv6</option>
+            <option value="CNAME">CNAME — اسم بديل</option>
+            <option value="TXT">TXT — نص</option>
+            <option value="MX">MX — بريد</option>
+            <option value="NS">NS — خادم أسماء</option>
+            <option value="SRV">SRV — خدمة</option>
+            <option value="CAA">CAA — شهادات</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rName">الاسم</label>
+          <input type="text" id="rName" class="ltr" placeholder="www" required>
+          <span class="hint" id="rNameHint"></span>
+        </div>
+        <div class="field">
+          <label for="rContent" id="rContentLabel">المحتوى</label>
+          <input type="text" id="rContent" class="ltr" placeholder="192.0.2.1" required>
+        </div>
+        <div class="field" id="rPriorityField" hidden>
+          <label for="rPriority">الأولوية</label>
+          <input type="number" id="rPriority" value="10" min="0" max="65535">
+        </div>
+        <div class="field">
+          <label for="rTtl">TTL</label>
+          <select id="rTtl">
+            <option value="1">تلقائي</option>
+            <option value="60">دقيقة</option>
+            <option value="300">5 دقائق</option>
+            <option value="1800">30 دقيقة</option>
+            <option value="3600">ساعة</option>
+            <option value="86400">يوم</option>
+          </select>
+          <span class="hint" id="rTtlHint"></span>
+        </div>
+        <div class="field">
+          <label for="rComment">ملاحظة (اختياري)</label>
+          <input type="text" id="rComment" placeholder="لشو هالسجل؟">
+        </div>
+      </div>
+      <label class="checkline" id="rProxiedWrap">
+        <input type="checkbox" id="rProxied" checked>
+        <span>تمرير عبر Cloudflare (البروكسي البرتقالي) — بيخفي الـ IP ويعطيك CDN و SSL</span>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="recordSaveBtn">حفظ</button>
+        <button type="button" class="btn" id="recordCancelBtn">إلغاء</button>
+      </div>
+    </form>
+
+    <div class="card table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>النوع</th>
+            <th>الاسم</th>
+            <th>المحتوى</th>
+            <th>البروكسي</th>
+            <th>TTL</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+      <div class="empty" id="recordsEmpty" hidden></div>
+    </div>
+  </section>
+
+  <!-- ============================ تبويب الأنفاق ============================ -->
+  <section class="view" id="view-tunnels" hidden>
+    <div class="toolbar">
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="addTunnelBtn">+ نفق جديد</button>
+      <button class="btn" id="refreshTunnelsBtn" title="تحديث">↻</button>
+    </div>
+
+    <form class="card panel" id="tunnelForm" hidden>
+      <h3>نفق جديد</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label for="tName">اسم النفق</label>
+          <input type="text" id="tName" placeholder="مثال: home-server" required>
+          <span class="hint">بينعمل نفق مُدار من كلاودفلير (remotely-managed)، يعني كل الإعدادات من هون بدون ملف YAML.</span>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">إنشاء</button>
+        <button type="button" class="btn" id="tunnelCancelBtn">إلغاء</button>
+      </div>
+    </form>
+
+    <div class="tunnel-layout">
+      <aside class="card tunnel-list" id="tunnelList"></aside>
+      <section class="card" id="tunnelDetail">
+        <div class="empty">اختر نفقاً من القائمة.</div>
+      </section>
+    </div>
+  </section>
+
+</main>
+
+<div id="toasts"></div>
+
+<dialog id="confirmDialog">
+  <h3 id="confirmTitle">تأكيد</h3>
+  <p id="confirmText"></p>
+  <div class="form-actions">
+    <button class="btn btn-danger" id="confirmYes">نعم، احذف</button>
+    <button class="btn" id="confirmNo">إلغاء</button>
+  </div>
+</dialog>
+
+<script src="/app.js"></script>
+</body>
+</html>

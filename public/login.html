@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>تسجيل الدخول — لوحة Cloudflare</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☁️</text></svg>">
+</head>
+<body>
+  <div class="login-wrap">
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <div class="logo"><span class="mark">☁</span><span>لوحة Cloudflare</span></div>
+      <h1>تسجيل الدخول</h1>
+      <p class="sub">أدخل كلمة السر للوصول لإدارة الـ DNS والأنفاق.</p>
+
+      <div class="field">
+        <label for="password">كلمة السر</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required autofocus>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">دخول</button>
+      <div class="login-error" id="error" hidden></div>
+    </form>
+  </div>
+  <script src="/login.js"></script>
+</body>
+</html>

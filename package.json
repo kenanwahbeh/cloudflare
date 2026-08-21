@@ -1,0 +1,15 @@
+{
+  "name": "cf-console",
+  "version": "1.0.0",
+  "private": true,
+  "description": "واجهة مبسّطة لإدارة سجلات DNS وأنفاق Cloudflare Tunnel",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "secrets": "wrangler secret put CLOUDFLARE_API_TOKEN && wrangler secret put UI_PASSWORD",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
