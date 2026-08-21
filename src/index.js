@@ -136,7 +136,10 @@ function noteFailure(request) {
 
 async function cfApi(env, path, init = {}) {
   if (!env.CLOUDFLARE_API_TOKEN) {
-    throw new ApiError("التوكن غير مضبوط. شغّل: wrangler secret put CLOUDFLARE_API_TOKEN", 500);
+    throw new ApiError(
+      "CLOUDFLARE_API_TOKEN غير مضبوط. ضيفه من لوحة كلاودفلير: Workers & Pages → cf-console → Settings → Variables and Secrets → Add (النوع: Secret)، أو شغّل: npx wrangler secret put CLOUDFLARE_API_TOKEN",
+      500,
+    );
   }
   const res = await fetch(CF_API + path, {
     method: init.method || "GET",
@@ -305,7 +308,13 @@ async function handleApi(request, env, segments) {
   /* --- تسجيل الدخول والخروج --- */
   if (rest[0] === "login" && method === "POST") {
     if (!env.UI_PASSWORD) {
-      return json({ error: "UI_PASSWORD غير مضبوطة. شغّل: wrangler secret put UI_PASSWORD" }, 500);
+      return json(
+        {
+          error:
+            "UI_PASSWORD غير مضبوطة. ضيفها من لوحة كلاودفلير: Workers & Pages → cf-console → Settings → Variables and Secrets → Add (النوع: Secret)، أو شغّل: npx wrangler secret put UI_PASSWORD",
+        },
+        500,
+      );
     }
     if (throttled(request)) {
       return json({ error: "محاولات كتيرة. جرّب بعد 10 دقائق." }, 429);
@@ -317,6 +326,16 @@ async function handleApi(request, env, segments) {
     }
     noteFailure(request);
     return json({ error: "كلمة السر غلط." }, 401);
+  }
+
+  // حالة الإعداد — عامة عن قصد: بتقول شو ناقص بس بدون ما تكشف أي قيمة.
+  // بدونها المستخدم بيوصل لصفحة دخول ما بتشتغل وما بيعرف ليش.
+  if (rest[0] === "setup-status" && method === "GET") {
+    const missing = [];
+    if (!env.UI_PASSWORD) missing.push("UI_PASSWORD");
+    if (!env.CLOUDFLARE_API_TOKEN) missing.push("CLOUDFLARE_API_TOKEN");
+    if (!env.CLOUDFLARE_ACCOUNT_ID) missing.push("CLOUDFLARE_ACCOUNT_ID");
+    return json({ configured: missing.length === 0, missing });
   }
 
   if (rest[0] === "logout" && method === "POST") {

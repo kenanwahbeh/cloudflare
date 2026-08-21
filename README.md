@@ -1,5 +1,7 @@
 # لوحة Cloudflare — واجهة مبسّطة لـ DNS والأنفاق
 
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/kenanwahbeh/cloudflare)
+
 واجهة عربية (RTL) بتشتغل كـ Cloudflare Worker، بتخليك تدير سجلات الـ DNS وأنفاق Cloudflare Tunnel
 بدون ما تدوخ بلوحة كلاودفلير الرسمية.
 
@@ -20,10 +22,56 @@
 - تعديل وحذف النطاقات (الحذف بيشيل قاعدة الـ ingress وسجل الـ CNAME التابع للنفق معاً)
 - إنشاء نفق جديد وإظهار أمر التثبيت الجاهز لـ `cloudflared`
 
+## النشر
+
+المشروع **Worker مع static assets** — مو مشروع Pages. لو دوّرت عليه بقسم Pages ما رح
+يمشي الحال: Pages بدها بنية تانية (مجلد `functions/`). بكلاودفلير الجديدة، Workers هي
+البديل الموصى فيه لـ Pages، والقسم اسمه **Workers & Pages** بس اللي بينعمل هون هو Worker.
+
+في ثلاث طرق، من الأسهل للأصعب:
+
+### 1) زر Deploy to Cloudflare (الأسرع)
+
+اضغط الزر فوق. كلاودفلير رح تعمل كل شي: تنسخ الريبو لحسابك، **وتسألك عن التوكن وكلمة
+السر بصفحة الإعداد**، وتبني وتنشر. هي الطريقة الوحيدة اللي بتضبط الأسرار من ضمن التدفّق.
+
+### 2) ربط الريبو من اللوحة (Workers Builds)
+
+1. **Workers & Pages** ← **Create application** ← **Import a repository**
+2. اختار حساب Git والريبو، وبعدين **Save and Deploy**
+3. خلّي إعدادات البناء على الافتراضي: أمر البناء فاضي، وأمر النشر `npx wrangler deploy`
+4. بعد ما ينجح أول نشر، ضيف الأسرار: **Settings** ← **Variables and Secrets** ← **Add**،
+   النوع **Secret**، وضيف `CLOUDFLARE_API_TOKEN` و `UI_PASSWORD` ← **Deploy**
+
+بعد هيك كل `git push` بينشر تلقائياً.
+
+> **الأسرار ما بتجي من Git.** لهيك أول ما تفتح الرابط قبل ما تضيفها، اللوحة بتقلك
+> بالضبط شو ناقص ووين تضيفه بدل ما تتلغبط بكلمة سر ما إلها وجود.
+
+#### ثلاث نقاط بتوقّف البناء إذا انتبهت إلها
+
+| الشي | التفصيل |
+| --- | --- |
+| **الفرع** | كلاودفلير بتبني من الفرع الافتراضي للريبو. إذا الكود على فرع تاني، يا تدمجه على `main` يا تغيّر الفرع من **Settings** ← **Build** ← **Branch control** |
+| **اسم الـ Worker** | لازم يطابق `name` بـ `wrangler.toml` (`cf-console`) وإلا البناء بيفشل |
+| **معرّف الحساب** | `CLOUDFLARE_ACCOUNT_ID` مثبّت بـ `wrangler.toml`. لو نشرت على حساب تاني، غيّره |
+
+### 3) من الطرفية
+
+```bash
+npm install
+npx wrangler login
+npx wrangler secret put CLOUDFLARE_API_TOKEN
+npx wrangler secret put UI_PASSWORD
+npm run deploy
+```
+
+بعد النشر بيطلعلك رابط بالشكل `https://cf-console.<اسم-حسابك>.workers.dev` — افتحه وسجّل دخول
+بكلمة السر اللي حطّيتها بـ `UI_PASSWORD`.
+
 ## المتطلبات
 
-- Node.js 18 أو أحدث
-- توكن Cloudflare API (مو Global API Key) بالصلاحيات التالية:
+توكن Cloudflare API (مو Global API Key) بالصلاحيات التالية:
 
 | النطاق | الصلاحية | ليش |
 | --- | --- | --- |
@@ -31,32 +79,10 @@
 | Zone | `DNS` → **Edit** | إضافة وتعديل وحذف سجلات الـ DNS |
 | Zone | `Zone` → **Read** | قراءة قائمة النطاقات |
 
-بتعمل التوكن من: **My Profile → API Tokens → Create Token → Custom token**.
+بتعمله من: **My Profile → API Tokens → Create Token → Custom token**.
 تحت `Zone Resources` اختار **All zones** (أو النطاقات اللي بدك تديرها).
 
-## التشغيل
-
-```bash
-npm install
-
-# سجّل دخول wrangler لحسابك على كلاودفلير
-npx wrangler login
-
-# احفظ الأسرار (ما بتنحفظ بالريبو — بتنخزّن مشفّرة عند كلاودفلير)
-npx wrangler secret put CLOUDFLARE_API_TOKEN
-npx wrangler secret put UI_PASSWORD
-
-npm run deploy
-```
-
-بعد النشر بيطلعلك رابط بالشكل `https://cf-console.<اسم-حسابك>.workers.dev` — افتحه وسجّل دخول
-بكلمة السر اللي حطّيتها بـ `UI_PASSWORD`.
-
-### تعديل معرّف الحساب
-
-`CLOUDFLARE_ACCOUNT_ID` موجود بـ `wrangler.toml` تحت `[vars]`. إذا بدّلت الحساب، غيّره من هناك.
-
-### التشغيل المحلي (اختياري)
+## التشغيل المحلي (اختياري)
 
 ```bash
 cp .dev.vars.example .dev.vars   # وعبّي القيم

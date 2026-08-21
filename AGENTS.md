@@ -24,6 +24,15 @@ wrangler.toml     إعداد النشر — static assets مع run_worker_first 
 - **API base**: `https://api.cloudflare.com/client/v4`
 - صلاحيات التوكن المطلوبة: `Account → Cloudflare Tunnel: Edit`، `Zone → DNS: Edit`، `Zone → Zone: Read`
 
+## النشر
+- المشروع Worker مع static assets (**مو Pages**). النشر من Git عبر Workers Builds.
+- اسم الـ Worker بلوحة كلاودفلير لازم يطابق `name` بـ `wrangler.toml` (`cf-console`) وإلا البناء بيفشل.
+- كلاودفلير بتبني من الفرع الافتراضي للريبو — أو من الفرع المحدد بـ Settings ← Build ← Branch control.
+- الأسرار ما بتنتقل من Git. `/api/setup-status` نقطة عامة (بدون مصادقة) بترجّع أسماء
+  المتغيرات الناقصة بس — بدون أي قيمة — وصفحة الدخول بتعرضها كتعليمات إعداد.
+- `package.json` فيه `cloudflare.bindings` بأوصاف الأسرار، و `.dev.vars.example` فيه أسماءها.
+  الاثنين بيقراهن زر «Deploy to Cloudflare» ليطلب القيم وقت الإعداد.
+
 ## نقاط API المستخدمة
 ```
 GET    /zones
