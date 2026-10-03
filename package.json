@@ -10,7 +10,7 @@
     "tail": "wrangler tail"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.147.0"
   },
   "cloudflare": {
     "label": "لوحة Cloudflare — DNS والأنفاق",
